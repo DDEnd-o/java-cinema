@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Quản trị - Phòng chiếu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/css/style.css" rel="stylesheet"/>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<div class="container page-content">
+    <div class="admin-subnav">
+        <a href="/admin/movies" class="admin-subnav-link"><i class="bi bi-camera-reels"></i> Quản lý Phim</a>
+        <a href="/admin/rooms" class="admin-subnav-link active"><i class="bi bi-grid-3x3-gap"></i> Phòng chiếu &amp; Ghế</a>
+        <a href="/admin/showtimes" class="admin-subnav-link"><i class="bi bi-calendar2-week"></i> Lịch &amp; Suất chiếu</a>
+        <a href="/admin/bookings" class="admin-subnav-link"><i class="bi bi-receipt-cutoff"></i> Vé đã bán</a>
+    </div>
+
+    <div class="cb-section-header">
+        <h4 class="cb-section-title">
+            <span class="cb-section-dot"></span>
+            Quản lý Phòng chiếu &amp; Sơ đồ ghế
+        </h4>
+        <a href="/admin/rooms/new" class="btn btn-cb-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> Thêm phòng chiếu
+        </a>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="cb-table-card">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th style="width: 80px;">ID</th>
+                    <th>Tên phòng chiếu</th>
+                    <th>Sức chứa (Tổng số ghế)</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${rooms}">
+                    <td class="text-muted fw-semibold">#<span th:text="${r.roomId}"></span></td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-dark rounded-2 p-2"><i class="bi bi-display"></i></span>
+                            <span class="fw-bold text-dark" th:text="${r.roomName}"></span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+                            <i class="bi bi-person-workspace me-1"></i><span th:text="${r.totalSeats}"></span> ghế ngồi
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <a th:href="@{/admin/rooms/{id}(id=${r.roomId})}" class="btn btn-sm btn-outline-primary rounded-3 me-1">
+                            <i class="bi bi-grid-3x3-gap me-1"></i> Xem / Cấu hình ghế VIP
+                        </a>
+                        <form th:action="@{/admin/rooms/{id}/delete(id=${r.roomId})}" method="post" class="d-inline"
+                              onsubmit="return confirm('Xóa phòng chiếu này? Ghế và suất chiếu liên quan cũng sẽ bị xóa.');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-3">
+                                <i class="bi bi-trash"></i> Xóa
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

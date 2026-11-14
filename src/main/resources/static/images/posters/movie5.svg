@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="450" fill="url(#g)"/>
+  <circle cx="34" cy="50" r="64" fill="rgba(255,255,255,0.07)"/>
+  <circle cx="276" cy="410" r="86" fill="rgba(255,255,255,0.07)"/>
+  <g transform="translate(150,165)" stroke="rgba(255,255,255,0.88)" stroke-width="5" fill="none">
+    <circle r="46"/>
+    <circle r="7" fill="rgba(255,255,255,0.88)" stroke="none" cx="0" cy="-30"/>
+    <circle r="7" fill="rgba(255,255,255,0.88)" stroke="none" cx="26" cy="-15"/>
+    <circle r="7" fill="rgba(255,255,255,0.88)" stroke="none" cx="26" cy="15"/>
+    <circle r="7" fill="rgba(255,255,255,0.88)" stroke="none" cx="0" cy="30"/>
+    <circle r="7" fill="rgba(255,255,255,0.88)" stroke="none" cx="-26" cy="15"/>
+    <circle r="7" fill="rgba(255,255,255,0.88)" stroke="none" cx="-26" cy="-15"/>
+    <circle r="12" fill="rgba(255,255,255,0.18)" stroke="none"/>
+  </g>
+  <text x="150" y="300" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="23" font-weight="700" fill="#ffffff">Mật Mã</text>
+  <text x="150" y="330" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="23" font-weight="700" fill="#ffffff">Hoàng Gia</text>
+  <text x="150" y="366" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="13" letter-spacing="0.5" fill="rgba(255,255,255,0.82)">Hành động · Trinh thám</text>
+</svg>
