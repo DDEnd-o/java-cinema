@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>Thanh toán - CinemaBooking</title>
+    <title>Thanh toán vé xem phim - CINEBOOKING</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="/css/style.css" rel="stylesheet"/>
@@ -10,23 +10,28 @@
 <body>
 <div th:replace="~{fragments/nav :: nav}"></div>
 
-<div class="container page-content" style="max-width: 920px;">
-    <!-- Booking Stepper -->
-    <div class="booking-stepper">
-        <div class="step-item done">
-            <span class="step-num"><i class="bi bi-check"></i></span>
-            <span>Chọn ghế ngồi</span>
+<div class="container page-content mt-3" style="max-width: 1020px;">
+    <!-- Top Booking Progress Bar -->
+    <div class="booking-top-bar">
+        <div class="booking-stepper">
+            <div class="step-item done">
+                <span class="step-num"><i class="bi bi-check"></i></span>
+                <span>Chọn Ghế Ngồi</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step-item active">
+                <span class="step-num">02</span>
+                <span>Thanh Toán</span>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step-item">
+                <span class="step-num">03</span>
+                <span>Vé Điện Tử QR</span>
+            </div>
         </div>
-        <div class="step-divider"></div>
-        <div class="step-item active">
-            <span class="step-num">2</span>
-            <span>Thanh toán</span>
-        </div>
-        <div class="step-divider"></div>
-        <div class="step-item">
-            <span class="step-num">3</span>
-            <span>Nhận vé điện tử</span>
-        </div>
+        <span class="badge bg-warning text-dark px-3 py-2 fw-bold">
+            Mã giao dịch tạm giữ: #<span th:text="${booking.bookingId}"></span>
+        </span>
     </div>
 
     <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
@@ -34,91 +39,163 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <div class="row g-4 align-items-start">
-        <!-- Left: Payment Methods -->
-        <div class="col-md-7">
-            <div class="bg-white rounded-4 border p-4 shadow-sm">
-                <h5 class="fw-bold mb-1"><i class="bi bi-credit-card-2-front text-danger me-2"></i>Phương thức thanh toán</h5>
-                <p class="text-muted small mb-4">Vui lòng chọn hình thức thanh toán (mô phỏng) để hoàn tất giữ ghế.</p>
+    <form th:action="@{/booking/{id}/payment(id=${booking.bookingId})}" method="post">
+        <div class="row g-4 align-items-start">
+            <!-- Left 7 Cols: Customer Info + Ticket Breakdown + Payment Gateways -->
+            <div class="col-lg-7">
+                <!-- 1. Thông tin người nhận vé -->
+                <div class="p-4 rounded-4 mb-4" style="background: var(--cinema-card); border: 1px solid var(--cinema-border-strong);">
+                    <h6 class="cinema-heading fw-bold text-uppercase text-white mb-3 pb-2 border-bottom">
+                        <i class="bi bi-person-vcard text-warning me-2"></i>1. Thông Tin Người Nhận Vé Điện Tử
+                    </h6>
+                    <div class="row g-3 small" th:if="${booking.user != null}">
+                        <div class="col-sm-4">
+                            <div class="text-muted">Khách hàng</div>
+                            <strong class="text-white" th:text="${booking.user.fullName}"></strong>
+                        </div>
+                        <div class="col-sm-5">
+                            <div class="text-muted">Email nhận mã vé</div>
+                            <strong class="text-info" th:text="${booking.user.email}"></strong>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="text-muted">Số điện thoại</div>
+                            <strong class="text-white" th:text="${booking.user.phone != null ? booking.user.phone : 'Đã xác thực'}"></strong>
+                        </div>
+                    </div>
+                </div>
 
-                <form th:action="@{/booking/{id}/payment(id=${booking.bookingId})}" method="post">
+                <!-- 2. Bảng kê chi tiết ghế -->
+                <div class="p-4 rounded-4 mb-4" style="background: var(--cinema-card); border: 1px solid var(--cinema-border-strong);">
+                    <h6 class="cinema-heading fw-bold text-uppercase text-white mb-3 pb-2 border-bottom">
+                        <i class="bi bi-receipt text-danger me-2"></i>2. Chi Tiết Đơn Vé
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0 text-light" style="--bs-table-bg: transparent;">
+                            <thead>
+                            <tr class="text-muted small border-bottom">
+                                <th>Hạng mục</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end">Đơn giá</th>
+                                <th class="text-end">Thành tiền</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="py-2">
+                                    <div class="fw-bold text-white">Vé xem phim 2D</div>
+                                    <div class="small text-muted">
+                                        Ghế:
+                                        <span th:each="bs, iter : ${bookingSeats}">
+                                            <strong class="text-warning" th:text="${bs.seat.label}"></strong><span th:if="${!iter.last}">, </span>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="text-center py-2 fw-bold" th:text="${#lists.size(bookingSeats)}"></td>
+                                <td class="text-end py-2" th:text="${#numbers.formatInteger(booking.showtime.price, 1, 'POINT')} + 'đ'"></td>
+                                <td class="text-end py-2 fw-bold text-warning" th:text="${#numbers.formatInteger(booking.totalAmount, 1, 'POINT')} + 'đ'"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. Chọn phương thức thanh toán -->
+                <div class="p-4 rounded-4" style="background: var(--cinema-card); border: 1px solid var(--cinema-border-strong);">
+                    <h6 class="cinema-heading fw-bold text-uppercase text-white mb-3 pb-2 border-bottom">
+                        <i class="bi bi-credit-card-2-front text-success me-2"></i>3. Chọn Phương Thức Thanh Toán
+                    </h6>
+
                     <label class="payment-option-label">
-                        <input type="radio" name="method" value="cash" class="form-check-input mt-0" checked/>
-                        <span class="payment-icon-box bg-success bg-opacity-10 text-success">
-                            <i class="bi bi-cash-coin"></i>
+                        <input type="radio" name="method" value="ewallet" class="form-check-input mt-0" checked/>
+                        <span class="payment-icon-box" style="background: rgba(229, 9, 20, 0.16); color: #ff4d58;">
+                            <i class="bi bi-qr-code-scan"></i>
                         </span>
                         <div>
-                            <div class="fw-bold text-dark">Tiền mặt tại quầy vé</div>
-                            <div class="small text-muted">Thanh toán trực tiếp cho nhân viên khi nhận vé tại rạp</div>
+                            <div class="fw-bold text-white">Ví điện tử (MoMo / ZaloPay / VNPay QR)</div>
+                            <div class="small text-muted">Quét mã QR thanh toán tức thì, nhận vé điện tử ngay lập tức</div>
                         </div>
                     </label>
 
                     <label class="payment-option-label">
                         <input type="radio" name="method" value="card" class="form-check-input mt-0"/>
-                        <span class="payment-icon-box bg-primary bg-opacity-10 text-primary">
+                        <span class="payment-icon-box" style="background: rgba(0, 210, 255, 0.14); color: #00d2ff;">
                             <i class="bi bi-credit-card"></i>
                         </span>
                         <div>
-                            <div class="fw-bold text-dark">Thẻ ngân hàng (ATM / Visa / MasterCard)</div>
-                            <div class="small text-muted">Thanh toán trực tuyến an toàn qua cổng thẻ nội địa và quốc tế</div>
+                            <div class="fw-bold text-white">Thẻ Ngân hàng Nội địa (ATM) / Quốc tế (Visa, MasterCard)</div>
+                            <div class="small text-muted">Bảo mật chuẩn napas / PCI-DSS không mất phí giao dịch</div>
                         </div>
                     </label>
 
-                    <label class="payment-option-label">
-                        <input type="radio" name="method" value="ewallet" class="form-check-input mt-0"/>
-                        <span class="payment-icon-box bg-danger bg-opacity-10 text-danger">
-                            <i class="bi bi-wallet2"></i>
+                    <label class="payment-option-label mb-0">
+                        <input type="radio" name="method" value="cash" class="form-check-input mt-0"/>
+                        <span class="payment-icon-box" style="background: rgba(16, 185, 129, 0.16); color: #34d399;">
+                            <i class="bi bi-cash-coin"></i>
                         </span>
                         <div>
-                            <div class="fw-bold text-dark">Ví điện tử (MoMo / ZaloPay / VNPay)</div>
-                            <div class="small text-muted">Quét mã nhanh chóng, nhận vé điện tử tức thì</div>
+                            <div class="fw-bold text-white">Tiền mặt tại quầy vé CINEBOOKING</div>
+                            <div class="small text-muted">Giữ chỗ trên hệ thống và thanh toán trực tiếp tại quầy trước giờ chiếu 15 phút</div>
                         </div>
                     </label>
-
-                    <button type="submit" class="btn btn-cb-primary w-100 py-2 mt-2">
-                        <i class="bi bi-shield-check me-1"></i> Xác nhận thanh toán
-                        (<span th:text="${#numbers.formatInteger(booking.totalAmount, 1, 'POINT')} + 'đ'"></span>)
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Right: Order Summary Ticket -->
-        <div class="col-md-5">
-            <div class="ticket-card">
-                <div class="ticket-header">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="small text-secondary text-uppercase fw-bold" style="letter-spacing: 0.08em;">Đơn đặt vé</span>
-                        <span class="badge bg-warning text-dark">Mã #<span th:text="${booking.bookingId}"></span></span>
-                    </div>
-                    <h5 class="fw-bold mb-0" th:text="${booking.showtime.movie.title}"></h5>
                 </div>
-                <div class="ticket-body">
-                    <div class="d-flex justify-content-between mb-2 small">
-                        <span class="text-muted">Phòng chiếu</span>
-                        <strong th:text="${booking.showtime.room.roomName}"></strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2 small">
-                        <span class="text-muted">Suất chiếu</span>
-                        <strong th:text="${#temporals.format(booking.showtime.startTime, 'HH:mm - dd/MM/yyyy')}"></strong>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2 small">
-                        <span class="text-muted">Ghế đã chọn</span>
-                        <div class="d-flex flex-wrap gap-1 justify-content-end">
-                            <span th:each="bs : ${bookingSeats}" class="seat-badge-pill" th:text="${bs.seat.label}"></span>
+            </div>
+
+            <!-- Right 5 Cols: Perforated Cinema Ticket Preview -->
+            <div class="col-lg-5">
+                <div class="ticket-card">
+                    <div class="ticket-header">
+                        <div class="d-flex gap-3 align-items-center">
+                            <img th:src="${booking.showtime.movie.posterUrl != null and !#strings.isEmpty(booking.showtime.movie.posterUrl) ? booking.showtime.movie.posterUrl : 'https://picsum.photos/seed/cinema/200/300'}"
+                                 alt="poster" class="rounded-3 border"
+                                 style="width: 72px; height: 104px; object-fit: cover;"
+                                 onerror="this.src='https://picsum.photos/seed/fallback/200/300'"/>
+                            <div>
+                                <div class="d-flex align-items-center gap-1 mb-1">
+                                    <span class="age-badge age-t13">T13</span>
+                                    <span class="badge bg-warning text-dark fw-bold">2D PHỤ ĐỀ</span>
+                                </div>
+                                <h5 class="cinema-heading fw-bold text-uppercase text-white mb-1" th:text="${booking.showtime.movie.title}"></h5>
+                                <div class="small text-muted" th:text="${booking.showtime.movie.durationMinutes} + ' phút'"></div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="ticket-divider"></div>
+                    <div class="ticket-body">
+                        <div class="d-flex justify-content-between mb-2 small">
+                            <span class="text-muted">Rạp chiếu:</span>
+                            <strong class="text-white">CinemaBooking Center</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 small">
+                            <span class="text-muted">Phòng chiếu:</span>
+                            <strong class="text-info" th:text="${booking.showtime.room.roomName}"></strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 small">
+                            <span class="text-muted">Suất chiếu:</span>
+                            <strong class="text-warning" th:text="${#temporals.format(booking.showtime.startTime, 'HH:mm - dd/MM/yyyy')}"></strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2 small">
+                            <span class="text-muted">Vị trí ghế:</span>
+                            <div class="d-flex flex-wrap gap-1 justify-content-end">
+                                <span th:each="bs : ${bookingSeats}" class="seat-badge-pill" th:text="${bs.seat.label}"></span>
+                            </div>
+                        </div>
 
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted fw-semibold">Tổng thanh toán</span>
-                        <span class="fs-4 fw-bold text-danger" th:text="${#numbers.formatInteger(booking.totalAmount, 1, 'POINT')} + 'đ'"></span>
+                        <div class="ticket-divider"></div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="fw-bold text-uppercase small text-muted">Tổng thanh toán</span>
+                            <span class="fs-3 fw-black cinema-heading text-warning"
+                                  th:text="${#numbers.formatInteger(booking.totalAmount, 1, 'POINT')} + 'đ'"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-cb-primary w-100 py-3">
+                            <i class="bi bi-shield-check me-1"></i> Xác Nhận Thanh Toán
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>

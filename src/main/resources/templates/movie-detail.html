@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title th:text="${movie.title} + ' - CinemaBooking'">Chi tiết phim</title>
+    <title th:text="${movie.title} + ' - Đặt Vé Xem Phim | CINEBOOKING'">Chi tiết phim</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="/css/style.css" rel="stylesheet"/>
@@ -10,104 +10,215 @@
 <body>
 <div th:replace="~{fragments/nav :: nav}"></div>
 
-<div class="container page-content">
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb small mb-0">
-            <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted"><i class="bi bi-house-door me-1"></i>Trang chủ</a></li>
-            <li class="breadcrumb-item active fw-semibold text-white" aria-current="page" th:text="${movie.title}"></li>
-        </ol>
-    </nav>
+<!-- WIDESCREEN MOVIE HEADER -->
+<section class="cinema-hero-slider mb-4">
+    <div class="hero-slide-item" style="min-height: 410px; padding: 2.5rem 0;">
+        <div class="hero-slide-backdrop"
+             th:style="'background-image: url(' + (${movie.posterUrl != null and !#strings.isEmpty(movie.posterUrl) ? movie.posterUrl : 'https://picsum.photos/seed/cinema/800/1200'}) + ');'"></div>
+        <div class="hero-slide-vignette"></div>
 
-    <!-- Movie Showcase Banner with Ambient Poster Blur -->
-    <div class="movie-detail-banner">
-        <div class="row g-4 align-items-center position-relative" style="z-index: 2;">
-            <div class="col-md-4 col-lg-3 text-center text-md-start">
-                <img th:src="${movie.posterUrl != null and !#strings.isEmpty(movie.posterUrl) ? movie.posterUrl : '/images/posters/placeholder.svg'}"
-                     class="movie-detail-poster" alt="poster"
-                     onerror="this.src='/images/posters/placeholder.svg'"/>
-            </div>
-            <div class="col-md-8 col-lg-9">
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                    <span th:switch="${movie.status.name()}">
-                        <span th:case="'showing'" class="badge bg-success px-3 py-2 rounded-pill"><i class="bi bi-play-circle-fill me-1"></i>Đang khởi chiếu</span>
-                        <span th:case="'upcoming'" class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="bi bi-calendar-event me-1"></i>Sắp khởi chiếu</span>
-                        <span th:case="*" class="badge bg-secondary px-3 py-2 rounded-pill">Đã kết thúc</span>
-                    </span>
-                    <span class="badge rounded-pill px-3 py-2" style="background: rgba(251, 191, 36, 0.16); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3);">
-                        IMAX 2D &bull; Phụ đề
-                    </span>
+        <div class="container hero-slide-content">
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb small mb-0">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted"><i class="bi bi-house-door me-1"></i>Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="/#movieTabsSection" class="text-decoration-none text-muted">Phim điện ảnh</a></li>
+                    <li class="breadcrumb-item active fw-bold text-warning" aria-current="page" th:text="${movie.title}"></li>
+                </ol>
+            </nav>
+
+            <div class="row g-4 align-items-center">
+                <div class="col-md-4 col-lg-3 text-center text-md-start">
+                    <div class="hero-poster-frame mx-auto mx-md-0" style="width: 230px;">
+                        <img th:src="${movie.posterUrl != null and !#strings.isEmpty(movie.posterUrl) ? movie.posterUrl : 'https://picsum.photos/seed/cinema/400/600'}"
+                             alt="poster"
+                             onerror="this.src='https://picsum.photos/seed/fallback/400/600'"/>
+                    </div>
                 </div>
 
-                <h1 class="fw-bold display-6 mb-3 text-white" th:text="${movie.title}"></h1>
+                <div class="col-md-8 col-lg-9">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        <span class="age-badge age-t13">T13</span>
+                        <span th:switch="${movie.status.name()}">
+                            <span th:case="'showing'" class="badge bg-success px-3 py-1">ĐANG KHỞI CHIẾU</span>
+                            <span th:case="'upcoming'" class="badge bg-warning text-dark px-3 py-1">SẮP KHỞI CHIẾU</span>
+                            <span th:case="*" class="badge bg-secondary px-3 py-1">ĐÃ KẾT THÚC</span>
+                        </span>
+                        <span class="rating-pill"><i class="bi bi-star-fill me-1"></i>9.2 / 10</span>
+                        <span class="badge border border-info text-info">2D PHỤ ĐỀ</span>
+                    </div>
 
-                <div class="d-flex flex-wrap gap-2 mb-4 small">
-                    <span class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill"
-                          style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
-                        <i class="bi bi-tags-fill text-danger"></i>
-                        <span th:text="${movie.genre != null and !#strings.isEmpty(movie.genre) ? movie.genre : 'Điện ảnh'}"></span>
-                    </span>
-                    <span class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill"
-                          style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
-                        <i class="bi bi-clock-fill text-warning"></i>
-                        <span th:text="${movie.durationMinutes} + ' phút'"></span>
-                    </span>
-                    <span th:if="${movie.releaseDate != null}" class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill"
-                          style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
-                        <i class="bi bi-calendar3 text-info"></i>
-                        <span>Khởi chiếu: <strong class="text-white" th:text="${#temporals.format(movie.releaseDate, 'dd/MM/yyyy')}"></strong></span>
-                    </span>
-                </div>
+                    <h1 class="cinema-heading display-6 fw-black text-uppercase text-white mb-3" th:text="${movie.title}"></h1>
 
-                <div class="p-3 rounded-4" style="background: rgba(0, 0, 0, 0.28); border: 1px solid rgba(255, 255, 255, 0.07);">
-                    <h6 class="text-uppercase fw-bold small mb-2" style="letter-spacing: 0.08em; color: #ff7597;">
-                        <i class="bi bi-card-text me-1"></i> Nội dung tóm tắt
-                    </h6>
-                    <p class="text-light opacity-90 mb-0" style="line-height: 1.75;"
-                       th:text="${movie.description != null and !#strings.isEmpty(movie.description) ? movie.description : 'Nội dung tóm tắt cho bộ phim này đang được cập nhật.'}"></p>
+                    <div class="row g-2 mb-4 small" style="max-width: 680px;">
+                        <div class="col-sm-6">
+                            <span class="text-muted">Thể loại:</span>
+                            <strong class="text-white ms-1" th:text="${movie.genre != null and !#strings.isEmpty(movie.genre) ? movie.genre : 'Điện ảnh'}"></strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted">Thời lượng:</span>
+                            <strong class="text-warning ms-1" th:text="${movie.durationMinutes} + ' phút'"></strong>
+                        </div>
+                        <div class="col-sm-6" th:if="${movie.releaseDate != null}">
+                            <span class="text-muted">Ngày khởi chiếu:</span>
+                            <strong class="text-white ms-1" th:text="${#temporals.format(movie.releaseDate, 'dd/MM/yyyy')}"></strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted">Ngôn ngữ:</span>
+                            <strong class="text-white ms-1">Phụ đề Tiếng Việt</strong>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <span class="text-muted">Kiểm duyệt:</span>
+                            <span class="text-warning fw-semibold ms-1">T13 - Phim được phổ biến đến người xem từ đủ 13 tuổi trở lên</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="#showtimeSection" class="btn btn-cb-primary px-4 py-2">
+                            <i class="bi bi-ticket-perforated-fill"></i> Chọn Suất Chiếu Ngay
+                        </a>
+                        <a href="/" class="btn btn-outline-secondary px-3 py-2 rounded-3">
+                            <i class="bi bi-arrow-left me-1"></i> Xem Phim Khác
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</section>
 
-    <!-- Showtimes Section -->
-    <div class="bg-white rounded-4 border p-4 shadow-lg">
-        <div class="cb-section-header mb-4">
-            <h4 class="cb-section-title fs-4">
-                <span class="cb-section-dot"></span>
-                Lịch Chiếu &amp; Chọn Suất
-            </h4>
-            <span class="text-muted small"><i class="bi bi-cursor-fill text-danger me-1"></i>Chọn khung giờ phù hợp để vào phòng chọn ghế</span>
+<!-- 2-COLUMN CINEMA DETAIL & SCHEDULE -->
+<div class="container page-content">
+    <div class="row g-4">
+        <!-- Left 8 Cols: Synopsis + Showtime Schedule -->
+        <div class="col-lg-8">
+            <!-- Synopsis Box -->
+            <div class="p-4 rounded-4 mb-4" style="background: var(--cinema-card); border: 1px solid var(--cinema-border-strong);">
+                <h5 class="cinema-heading fw-bold text-uppercase text-white mb-3 pb-2 border-bottom">
+                    <i class="bi bi-file-earmark-text text-danger me-2"></i>Nội Dung Phim
+                </h5>
+                <p class="text-light mb-0" style="line-height: 1.8; font-size: 0.96rem;"
+                   th:text="${movie.description != null and !#strings.isEmpty(movie.description) ? movie.description : 'Nội dung tóm tắt cho bộ phim này đang được cập nhật.'}"></p>
+            </div>
+
+            <!-- Showtime Schedule Box -->
+            <div id="showtimeSection" class="p-4 rounded-4" style="background: var(--cinema-card); border: 1px solid var(--cinema-border-strong);">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <h5 class="cinema-heading fw-bold text-uppercase text-white mb-0">
+                        <i class="bi bi-calendar2-check text-warning me-2"></i>Lịch Chiếu Tại Rạp
+                    </h5>
+                    <span class="small text-muted"><i class="bi bi-geo-alt-fill text-danger me-1"></i>CinemaBooking Center</span>
+                </div>
+
+                <div th:if="${#lists.isEmpty(showtimes)}" class="text-center py-5">
+                    <i class="bi bi-calendar-x fs-1 text-muted"></i>
+                    <h6 class="fw-bold text-white mt-3 mb-1">Chưa có lịch chiếu cho bộ phim này</h6>
+                    <p class="text-muted small mb-0">Vui lòng quay lại sau hoặc chọn một bộ phim đang khởi chiếu khác.</p>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(showtimes)}">
+                    <!-- Date Filter Tabs -->
+                    <div class="date-tabs-strip">
+                        <button type="button" class="date-tab-btn active" data-date-filter="all">
+                            <div class="small opacity-75">Tất cả</div>
+                            <div class="fw-bold">Mọi ngày</div>
+                        </button>
+                        <button th:each="entry : ${showtimesByDate}"
+                                type="button"
+                                class="date-tab-btn"
+                                th:attr="data-date-filter=${#temporals.format(entry.key, 'yyyy-MM-dd')}">
+                            <div class="small opacity-75" th:text="'Tháng ' + ${#temporals.format(entry.key, 'MM')}"></div>
+                            <div class="fw-bold fs-6" th:text="${#temporals.format(entry.key, 'dd/MM/yyyy')}"></div>
+                        </button>
+                    </div>
+
+                    <!-- Showtime Groups By Date -->
+                    <div th:each="entry : ${showtimesByDate}"
+                         class="date-schedule-group mb-3 p-3 rounded-4 border"
+                         style="background: rgba(0, 0, 0, 0.22);"
+                         th:attr="data-date-group=${#temporals.format(entry.key, 'yyyy-MM-dd')}">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-danger px-2 py-1"><i class="bi bi-calendar3 me-1"></i>Ngày <span th:text="${#temporals.format(entry.key, 'dd/MM/yyyy')}"></span></span>
+                                <span class="small fw-bold text-uppercase text-warning">2D Phụ Đề Việt</span>
+                            </div>
+                            <span class="small text-muted" th:text="${#lists.size(entry.value)} + ' suất chiếu'"></span>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-3">
+                            <a th:each="st : ${entry.value}"
+                               th:href="@{/booking/{id}/seats(id=${st.showtimeId})}"
+                               class="time-slot-box">
+                                <span class="slot-start" th:text="${#temporals.format(st.startTime, 'HH:mm')}"></span>
+                                <span class="slot-meta">
+                                    <span th:if="${st.endTime != null}" th:text="'~' + ${#temporals.format(st.endTime, 'HH:mm')} + ' · '"></span>
+                                    <strong class="text-info" th:text="${st.room.roomName}"></strong>
+                                </span>
+                                <span class="slot-price" th:text="${#numbers.formatInteger(st.price, 1, 'POINT')} + 'đ'"></span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div th:if="${#lists.isEmpty(showtimes)}" class="text-center py-5">
-            <i class="bi bi-calendar-x fs-1 text-muted"></i>
-            <p class="text-muted mt-2 mb-0">Hiện chưa có suất chiếu nào được mở bán cho bộ phim này.</p>
-        </div>
+        <!-- Right 4 Cols: Now Showing Sidebar (Chuẩn Galaxy Cinema) -->
+        <div class="col-lg-4">
+            <div class="p-4 rounded-4" style="background: var(--cinema-card); border: 1px solid var(--cinema-border-strong);">
+                <h6 class="cinema-heading fw-bold text-uppercase text-white mb-3 pb-2 border-bottom">
+                    <i class="bi bi-collection-play-fill text-danger me-2"></i>Phim Đang Chiếu Khác
+                </h6>
 
-        <div class="d-flex flex-wrap gap-3" th:if="${!#lists.isEmpty(showtimes)}">
-            <a th:each="st : ${showtimes}"
-               th:href="@{/booking/{id}/seats(id=${st.showtimeId})}"
-               class="showtime-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="showtime-time" th:text="${#temporals.format(st.startTime, 'HH:mm')}"></span>
-                    <span class="badge rounded-pill px-2 py-1"
-                          style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);"
-                          th:text="${st.room.roomName}"></span>
+                <div class="d-flex flex-column gap-3">
+                    <div th:each="rm : ${relatedMovies}" class="d-flex gap-3 align-items-center pb-3 border-bottom">
+                        <a th:href="@{/movies/{id}(id=${rm.movieId})}" class="flex-shrink-0">
+                            <img th:src="${rm.posterUrl != null and !#strings.isEmpty(rm.posterUrl) ? rm.posterUrl : 'https://picsum.photos/seed/cinema/200/300'}"
+                                 alt="poster" class="rounded-3 border"
+                                 style="width: 68px; height: 98px; object-fit: cover;"
+                                 onerror="this.src='https://picsum.photos/seed/fallback/200/300'"/>
+                        </a>
+                        <div class="flex-grow-1">
+                            <div class="mb-1">
+                                <span class="age-badge age-t13" style="font-size: 0.65rem;">T13</span>
+                            </div>
+                            <a th:href="@{/movies/{id}(id=${rm.movieId})}" class="text-decoration-none">
+                                <div class="fw-bold text-white small text-uppercase mb-1" th:text="${rm.title}"></div>
+                            </a>
+                            <div class="text-muted" style="font-size: 0.78rem;" th:text="${rm.genre}"></div>
+                            <a th:href="@{/movies/{id}(id=${rm.movieId})}" class="btn btn-sm btn-cb-primary py-1 px-3 mt-2" style="font-size: 0.72rem;">
+                                <i class="bi bi-ticket-perforated"></i> Mua vé
+                            </a>
+                        </div>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(relatedMovies)}" class="text-muted small text-center py-3">
+                        Đang hiển thị duy nhất bộ phim này.
+                    </div>
                 </div>
-                <div class="small text-muted">
-                    <i class="bi bi-calendar3 me-1"></i>
-                    <span th:text="${#temporals.format(st.startTime, 'dd/MM/yyyy')}"></span>
-                    <span th:if="${st.endTime != null}" th:text="' (~' + ${#temporals.format(st.endTime, 'HH:mm')} + ')'"></span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center pt-2 mt-1 border-top">
-                    <span class="fw-bold" style="color: #fbbf24;" th:text="${#numbers.formatInteger(st.price, 1, 'POINT')} + 'đ'"></span>
-                    <span class="small fw-semibold" style="color: #ff5c83;">Chọn ghế <i class="bi bi-arrow-right"></i></span>
-                </div>
-            </a>
+            </div>
         </div>
     </div>
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var dateBtns = document.querySelectorAll('.date-tab-btn');
+        var groups = document.querySelectorAll('.date-schedule-group');
+        dateBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                dateBtns.forEach(function (b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                var filter = btn.getAttribute('data-date-filter');
+                groups.forEach(function (g) {
+                    if (filter === 'all' || g.getAttribute('data-date-group') === filter) {
+                        g.style.display = '';
+                    } else {
+                        g.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
 </body>
 </html>
